@@ -12,7 +12,7 @@
 #############################################
 Function Enable-Modules
 {
-Import-Module ..\modules\vm-deployment.psm1
+Import-Module .\modules\vm-deployment.psm1
 }
 Enable-Modules
 #############################################
