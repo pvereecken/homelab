@@ -1,0 +1,42 @@
+version: "2.1"
+networks: 
+  proxy:
+    external: true
+    
+services:
+  unifi-controller: 
+    container_name: unifi-controller
+    hostname: unifi
+    image: ghcr.io/linuxserver/unifi-controller:version-7.5.187
+    networks:
+      proxy:
+    dns:
+      - 192.168.0.1 # change to your DNS
+      - 192.168.0.2 # change to your DNS
+    environment: 
+      PUID: 1000 # change to your user id
+      PGID: 1000 # change to your group id
+      #MEM_LIMIT: 1024M
+      #MEM_STARTUP: 1024M
+      TZ: Europe/Amsterdam # change to your time zone
+    ports: 
+      - "3478:3478/udp" # Unifi STUN port
+      - "10001:10001/udp" # Unifi AP discovery
+      - "8080:8080" # Required for device communication
+      #- "8443:8443"
+      #- "1900:1900/udp"
+      #- "8843:8843"
+      #- "8880:8880"
+      - "6789:6789" # For mobile throughput test
+      #- "5514:5514/udp"
+    volumes: 
+      - /your/path/docker/unifi:/config
+    restart: unless-stopped
+    labels: # remove if you do not use traefik
+      - traefik.enable=true
+      - traefik.http.routers.unifi.rule=Host(`unifi.yourdomain.com`)
+      - traefik.http.routers.unifi.entrypoints=websecure
+      - traefik.http.routers.unifi.tls=true
+      - traefik.http.routers.unifi.tls.certresolver=cert-resolver
+      - traefik.http.services.unifi.loadbalancer.server.scheme=https
+      - traefik.http.services.unifi.loadbalancer.server.port=8443
